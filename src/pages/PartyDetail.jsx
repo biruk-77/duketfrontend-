@@ -142,7 +142,7 @@ function TxnForm({ kind, products, initial, onSubmit, busy, error, submitLabel }
           ))}
         </select>
       </label>
-      
+
       {!f.productId && (
         <>
           <label>Item name <input required value={f.itemName} onChange={(e) => set('itemName', e.target.value)} /></label>
@@ -203,14 +203,14 @@ function TxnForm({ kind, products, initial, onSubmit, busy, error, submitLabel }
       {f.quantity && (f.unitPrice || product) && (() => {
         const currentStock = product ? Number(product.stock) : 0;
         const qtyNum = Number(f.quantity || 0);
-        const remainingStock = isClient 
-          ? currentStock - qtyNum 
+        const remainingStock = isClient
+          ? currentStock - qtyNum
           : (f.restock ? currentStock + qtyNum : currentStock);
-        
-        const paymentAmount = f.paymentType === 'owe' 
-          ? 0 
+
+        const paymentAmount = f.paymentType === 'owe'
+          ? 0
           : (f.paymentType === 'paid' ? calculatedTotal : Number(f.amountPaid || 0));
-        
+
         const remainingPayment = Math.max(calculatedTotal - paymentAmount, 0);
 
         return (
@@ -219,7 +219,7 @@ function TxnForm({ kind, products, initial, onSubmit, busy, error, submitLabel }
               <span>Total amount:</span>
               <Money value={calculatedTotal} />
             </div>
-            
+
             {product && (
               <div style={{ display: 'flex', justifyContent: 'space-between', color: remainingStock < 0 ? '#a63a24' : '#5c6154' }}>
                 <span>Remaining stock:</span>
@@ -493,42 +493,56 @@ function PaymentForm({ onSubmit, busy, error, unpaidTransactions = [], initialSe
               const txData = f.selectedTxs[tx.id] || { checked: false };
 
               return (
-                <div key={tx.id} style={{
-                  padding: '8px',
-                  border: '1px solid var(--line)',
-                  borderRadius: '6px',
-                  background: txData.checked ? '#f0fdf4' : 'transparent',
-                  transition: 'background 0.15s'
-                }}>
+                <div
+                  key={tx.id}
+                  onClick={() => handleCheckboxChange(tx, !txData.checked)}
+                  style={{
+                    padding: '8px 10px',
+                    border: txData.checked ? '2px solid #3b82f6' : '1px solid var(--line)',
+                    borderRadius: '6px',
+                    background: txData.checked ? '#eff6ff' : 'transparent',
+                    cursor: 'pointer',
+                    transition: 'all 0.15s',
+                    userSelect: 'none',
+                  }}
+                >
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <input
-                      type="checkbox"
-                      checked={txData.checked}
-                      onChange={(e) => handleCheckboxChange(tx, e.target.checked)}
-                      style={{ width: 'auto', cursor: 'pointer' }}
-                    />
-                    <div style={{ flex: 1, fontSize: '0.82rem', cursor: 'pointer' }} onClick={() => handleCheckboxChange(tx, !txData.checked)}>
+                    <div style={{
+                      width: '16px', height: '16px', flexShrink: 0,
+                      borderRadius: '4px',
+                      border: txData.checked ? '2px solid #3b82f6' : '2px solid #cbd5e1',
+                      background: txData.checked ? '#3b82f6' : '#fff',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      fontSize: '10px', color: '#fff', fontWeight: '900',
+                      transition: 'all 0.15s',
+                    }}>
+                      {txData.checked && '✓'}
+                    </div>
+                    <div style={{ flex: 1, fontSize: '0.82rem' }}>
                       <strong>[{dateStr}] {tx.itemName}</strong>
                       <span style={{ color: 'var(--ink-soft)', marginLeft: '6px' }}>({categoryStr})</span>
-                      <div style={{ fontSize: '0.78rem', color: txData.checked ? '#166534' : 'var(--ink-soft)' }}>
-                        Owed: <strong>Br {tx.amountOwed.toLocaleString()}</strong>
-                      </div>
+                      <span style={{ marginLeft: '6px', color: txData.checked ? '#1d4ed8' : 'var(--ink-soft)', fontSize: '0.78rem' }}>
+                        — Owed: <strong>Br {tx.amountOwed.toLocaleString()}</strong>
+                      </span>
                     </div>
                   </div>
 
                   {txData.checked && (
-                    <div style={{
-                      marginTop: '8px',
-                      paddingTop: '8px',
-                      borderTop: '1px dotted #bbf7d0',
-                      display: 'flex',
-                      flexDirection: 'column',
-                      gap: '6px'
-                    }}>
+                    <div
+                      onClick={(e) => e.stopPropagation()}
+                      style={{
+                        marginTop: '8px',
+                        paddingTop: '8px',
+                        borderTop: '1px dotted #93c5fd',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: '6px'
+                      }}
+                    >
                       {tx.unitPrice ? (
                         <>
                           <div style={{ display: 'flex', gap: '14px', fontSize: '0.78rem' }}>
-                            <label className="check" style={{ cursor: 'pointer', color: '#166534' }}>
+                            <label className="check" style={{ cursor: 'pointer', color: '#1d4ed8' }}>
                               <input
                                 type="radio"
                                 name={`payType-${tx.id}`}
@@ -538,7 +552,7 @@ function PaymentForm({ onSubmit, busy, error, unpaidTransactions = [], initialSe
                               />
                               Pay Amount
                             </label>
-                            <label className="check" style={{ cursor: 'pointer', color: '#166534' }}>
+                            <label className="check" style={{ cursor: 'pointer', color: '#1d4ed8' }}>
                               <input
                                 type="radio"
                                 name={`payType-${tx.id}`}
@@ -553,7 +567,7 @@ function PaymentForm({ onSubmit, busy, error, unpaidTransactions = [], initialSe
                           <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
                             {txData.payType === 'amount' ? (
                               <div style={{ display: 'flex', alignItems: 'center', gap: '6px', width: '100%' }}>
-                                <span style={{ fontSize: '0.8rem', color: '#166534' }}>Br</span>
+                                <span style={{ fontSize: '0.8rem', color: '#1d4ed8' }}>Br</span>
                                 <input
                                   type="number"
                                   min="0.01"
@@ -578,7 +592,7 @@ function PaymentForm({ onSubmit, busy, error, unpaidTransactions = [], initialSe
                                   onChange={(e) => handleTxUnitsChange(tx, e.target.value)}
                                   style={{ padding: '4px 6px', fontSize: '0.8rem', width: '90px' }}
                                 />
-                                <span style={{ fontSize: '0.78rem', color: '#166534' }}>
+                                <span style={{ fontSize: '0.78rem', color: '#1d4ed8' }}>
                                   {tx.productUnit || 'units'} @ Br {Number(tx.unitPrice).toLocaleString()} = <strong>Br {Number(txData.amount || 0).toLocaleString()}</strong>
                                 </span>
                               </div>
@@ -587,7 +601,7 @@ function PaymentForm({ onSubmit, busy, error, unpaidTransactions = [], initialSe
                         </>
                       ) : (
                         <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                          <span style={{ fontSize: '0.8rem', color: '#166534' }}>Amount: Br</span>
+                          <span style={{ fontSize: '0.8rem', color: '#1d4ed8' }}>Amount: Br</span>
                           <input
                             type="number"
                             min="0.01"

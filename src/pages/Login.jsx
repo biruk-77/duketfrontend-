@@ -18,7 +18,9 @@ export default function Login() {
       await login(creds);
       navigate('/');
     } catch (err) {
-      setError(err.message);
+      console.error('[Login] Error:', err);
+      const detail = err.rawResponse ? ` | Raw: ${err.rawResponse}` : '';
+      setError(`${err.message} (status: ${err.status ?? 'network'})${detail}`);
     } finally {
       setBusy(false);
     }
