@@ -28,6 +28,7 @@ function TxnForm({ kind, products, initial, onSubmit, busy, error, submitLabel }
     amountPaid: '',
     paidUnits: '',
     paymentMethod: 'Cash',
+    lastPaymentAnchor: 'amountPaid',
   });
 
   const product = products?.find((p) => p.id === f.productId);
@@ -74,12 +75,14 @@ function TxnForm({ kind, products, initial, onSubmit, busy, error, submitLabel }
       const puVal = Number(v);
       const pVal = Number(nextState.unitPrice || 0);
       nextState.amountPaid = String(puVal * pVal);
+      nextState.lastPaymentAnchor = 'paidUnits';
     } else if (k === 'amountPaid') {
       const apVal = Number(v);
       const pVal = Number(nextState.unitPrice || 0);
       if (pVal > 0) {
         nextState.paidUnits = String(apVal / pVal);
       }
+      nextState.lastPaymentAnchor = 'amountPaid';
     }
 
     // Auto-update amountPaid / paidUnits based on paymentType selection
@@ -94,12 +97,13 @@ function TxnForm({ kind, products, initial, onSubmit, busy, error, submitLabel }
     } else if (k === 'paymentType' && v === 'partial') {
       nextState.amountPaid = '';
       nextState.paidUnits = '';
+      nextState.lastPaymentAnchor = 'amountPaid';
     } else {
       if (currentType === 'partial' && (k === 'unitPrice' || k === 'productId' || k === 'quantity' || k === 'total')) {
-        if (nextState.paidUnits) {
-          nextState.amountPaid = String(Number(nextState.paidUnits) * Number(nextState.unitPrice || 0));
-        } else if (nextState.amountPaid && Number(nextState.unitPrice) > 0) {
-          nextState.paidUnits = String(Number(nextState.amountPaid) / Number(nextState.unitPrice));
+        if (nextState.lastPaymentAnchor === 'paidUnits') {
+          nextState.amountPaid = String(Number(nextState.paidUnits || 0) * Number(nextState.unitPrice || 0));
+        } else if (nextState.lastPaymentAnchor === 'amountPaid' && Number(nextState.unitPrice) > 0) {
+          nextState.paidUnits = String(Number(nextState.amountPaid || 0) / Number(nextState.unitPrice));
         }
       }
     }
