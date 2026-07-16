@@ -1,4 +1,8 @@
-const BASE = (import.meta.env.VITE_API_BASE || '') + '/api/v1';
+// Always use relative path — Vercel rewrites /api/* to Railway in production,
+// and Vite's dev proxy forwards /api/* to localhost:4000 in development.
+// This keeps cookies same-origin on both environments.
+const BASE = '/api/v1';
+console.log('[API] BASE URL:', BASE);
 
 async function raw(path, opts = {}) {
   const res = await fetch(BASE + path, {
